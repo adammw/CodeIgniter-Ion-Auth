@@ -1011,4 +1011,77 @@ class Ion_auth_model extends CI_Model
 
 	    return FALSE;
 	}
+	
+	/**
+	 * Permission functionality
+	 *
+	 *
+	 * @author Adam M-W
+	 */
+	/**
+	 * get_permissions
+	 *
+	 * @return object
+	 * @author Adam M-W
+	 **/
+	public function get_permissions()
+  	{
+	    return $this->db->get($this->tables['permissions'])
+			    ->result();
+  	}
+	
+	/**
+	 * get_permission_by_name
+	 *
+	 * @return object
+	 * @param permission name
+	 * @author Adam M-W
+	 **/
+	public function get_permission_by_name($name)
+  	{
+	    $this->db->where('name', $name);
+
+	    return $this->db->get($this->tables['permissions'])
+			    ->row();
+  	}
+  	
+	/**
+	 * get_permission
+	 *
+	 * @return object
+	 * @param permission id
+	 * @author Adam M-W
+	 **/
+	public function get_permission($id)
+  	{
+	    $this->db->where('id', $id);
+
+	    return $this->db->get($this->tables['permissions'])
+			    ->row();
+  	}
+  	
+	/**
+	 * get_users_permissions
+	 *
+	 * @return object
+	 * @param user id (optional; uses session user id if not set)
+	 * @author Adam M-W
+	 **/
+	public function get_users_permissions($id=false)
+  	{
+  		//if no id was passed use the current users id
+	    $id || $id = $this->session->userdata('user_id');
+
+	    $user = $this->db->select('group_id')
+			     ->where('id', $id)
+			     ->get($this->tables['users'])
+			     ->row();
+
+	    return $this->db->select($this->tables['permissions'].'.*')
+			    ->where($this->tables['group_permission_xref'].'.group_id', $user->group_id)
+			    ->get($this->tables['group_permission_xref'])
+			    ->join($this->tables['permissions'],$this->tables['permissions'].'.id = '.$this->tables['group_permission_xref'].'.permission_id')
+			    ->result();
+  	}
+  	
 }

@@ -617,6 +617,19 @@ class Ion_auth
 		return FALSE;
 	}
 
+	/**
+	 * user_has_permission
+	 *
+	 * @return void
+	 * @author Adam M-W
+	 **/
+	public function user_has_permission($permission,$user_id=false)
+	{
+		$user_id || $user_id = $this->ci->session->userdata('user_id');
+		return $this->ci->ion_auth_model->user_has_permission($id,$user_id);
+	}
+
+	
 
 	/**
 	 * extra_where

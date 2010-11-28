@@ -1015,9 +1015,16 @@ class Ion_auth_model extends CI_Model
 	/**
 	 * Permission functionality
 	 *
+	 * get_permissions
+	 * get_permission_by_name
+	 * get_permission
+	 * get_groups_permission
+	 * get_users_permission
+	 * has_permission
 	 *
 	 * @author Adam M-W
 	 */
+	
 	/**
 	 * get_permissions
 	 *
@@ -1061,6 +1068,22 @@ class Ion_auth_model extends CI_Model
   	}
   	
 	/**
+	 * get_groups_permissions
+	 *
+	 * @return object
+	 * @param group id
+	 * @author Adam M-W
+	 **/
+	public function get_groups_permissions($id)
+  	{
+	    return $this->db->select($this->tables['permissions'].'.*')
+			    ->where($this->tables['group_permission_xref'].'.group_id', $id)
+			    ->get($this->tables['group_permission_xref'])
+			    ->join($this->tables['permissions'],$this->tables['permissions'].'.id = '.$this->tables['group_permission_xref'].'.permission_id')
+			    ->result();
+  	}
+  	
+	/**
 	 * get_users_permissions
 	 *
 	 * @return object
@@ -1077,11 +1100,54 @@ class Ion_auth_model extends CI_Model
 			     ->get($this->tables['users'])
 			     ->row();
 
-	    return $this->db->select($this->tables['permissions'].'.*')
-			    ->where($this->tables['group_permission_xref'].'.group_id', $user->group_id)
-			    ->get($this->tables['group_permission_xref'])
-			    ->join($this->tables['permissions'],$this->tables['permissions'].'.id = '.$this->tables['group_permission_xref'].'.permission_id')
-			    ->result();
+	    return $this->get_groups_permissions($user->group_id);
   	}
+  	
+	/**
+	 * group_has_permission
+	 *
+	 * @return bool
+	 * @param permission name or id
+	 * @param group id
+	 * @author Adam M-W
+	 **/
+  	public function group_has_permission($permission,$group_id)
+  	{
+  		if (is_int($permission))
+	    {
+    		return $this->db->where('permission_id',$permission)
+    				->where('group_id',$group_id)
+    				->get($this->tables['group_permission_xref'])
+    				->count_all_results() > 0;
+	    } else {
+	    	return $this->db->where($this->tables['permissions'].'.name',$permission)
+	    			->where('group_id',$group_id)
+	    			->join($this->tables['group_permission_xref'], $this->tables['group_permission_xref'].'.permission_id = '.$this->tables['permissions'].'.id')
+	    			->get($this->tables['permissions'])
+	    			->count_all_results() > 0;
+	    }
+  	}
+  	
+  	/**
+	 * user_has_permission
+	 *
+	 * @return bool
+	 * @param permission name or id
+	 * @param user id (optional; uses session user id if not set)
+	 * @author Adam M-W
+	 **/
+  	public function user_has_permission($permission,$user_id=false)
+  	{
+  		//if no user id was passed use the current users id
+	    $user_id || $user_id = $this->session->userdata('user_id');
+
+	    $user = $this->db->select('group_id')
+			     ->where('id', $id)
+			     ->get($this->tables['users'])
+			     ->row();
+			     
+	     return group_has_permission($permission,$user->group_id);
+  	}
+  	
   	
 }

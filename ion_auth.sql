@@ -1,3 +1,30 @@
+DROP TABLE IF EXISTS `permissions`;
+
+#
+# Table structure for table 'permissions'
+#
+
+CREATE TABLE `permissions` (
+  `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL,
+  `description` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+);
+
+
+#
+# Dumping data for table 'permissions'
+#
+
+INSERT INTO `permissions` (`id`, `name`, `description`) VALUES
+	(1,'view_pages','Specifies if a user can view pages'),
+	(2,'edit_pages','Specifies if a user can edit pages'),
+	(3,'delete_pages','Specifies if a user can edit pages'),
+	(4,'add_users','Specifies if a user can add new users'),
+	(5,'list_users','Specifies if a user can list users'),
+	(6,'delete_users','Specifies if a user can delete users');
+
+
 DROP TABLE IF EXISTS `groups`;
 
 #
@@ -7,7 +34,7 @@ DROP TABLE IF EXISTS `groups`;
 CREATE TABLE `groups` (
   `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(20) NOT NULL,
-  `description` varchar(100) NOT NULL,
+  `description` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 );
 
@@ -19,6 +46,32 @@ CREATE TABLE `groups` (
 INSERT INTO `groups` (`id`, `name`, `description`) VALUES
 	(1,'admin','Administrator'),
 	(2,'members','General User');
+
+DROP TABLE IF EXISTS `group_permission_xref`;
+
+#
+# Table structure for table 'group_permission_xref'
+#
+
+CREATE TABLE `group_permission_xref` (
+  `group_id` mediumint(8) unsigned NOT NULL,
+  `permission_id` mediumint(8) unsigned NOT NULL,
+  PRIMARY KEY (`group_id`, `permission_id`)
+);
+
+
+#
+# Dumping data for table 'group_permission_xref'
+#
+
+INSERT INTO `group_permission_xref` (`group_id`, `permission_id`) VALUES
+	(1,1),
+	(1,2),
+	(1,3),
+	(1,4),
+	(1,5),
+	(1,6),
+	(2,1);
 
 
 DROP TABLE IF EXISTS `meta`;
